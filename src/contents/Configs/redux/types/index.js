@@ -1,0 +1,2 @@
+export const DELETE_ALL = 'DELETE_ALL'
+export const SHOW_ONBOARDING = 'SHOW_ONBOARDING'
