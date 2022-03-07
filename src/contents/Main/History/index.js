@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,32 +15,26 @@ import historyStack from './routes';
 import AppView from '@utils/appView';
 import IconHistory from 'src/assets/icons/History';
 import HeaderPhone from 'src/components/header';
-
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'Hien mau lan 1',
-    dateDonate: '03/05/2021',
-    location: 'Da Nang',
-    amount: '350ml',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Hien mau lan 2',
-    dateDonate: '03/06/2021',
-    location: 'Da Nang1',
-    amount: '250ml',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Hien mau lan 3',
-    dateDonate: '03/04/2021',
-    location: 'Da Nang2',
-    amount: '150ml',
-  },
-];
+import {get} from '../../../core/utils/apis';
+import moment from 'moment';
 
 export default function HistoryScreen() {
+  // const res = get('/blood/register/history');
+  // console.log(res);
+
+  const [listHistory, setListHistory] = useState();
+  const getUserHistory = async () => {
+    await get('/blood/register/history')
+      .then(res => {
+        console.log(res);
+        setListHistory(res.Data);
+        console.log(listHistory);
+      })
+      .catch(err => console.log(err));
+  };
+  useEffect(() => {
+    getUserHistory();
+  }, []);
   const renderItem = ({item}) => {
     return (
       <View
@@ -48,14 +42,12 @@ export default function HistoryScreen() {
           width: AppView.screenWidth,
           height: 150,
           paddingHorizontal: 20,
+          marginTop: 20,
         }}>
         {/* <ImageBackground style={{width: 300, height: 300, alignSelf: 'center'}}>
           {item.image}
         </ImageBackground> */}
         <TouchableOpacity
-          onPress={() => {
-            NavigationService.navigate(historyStack.detail, item);
-          }}
           style={{
             paddingHorizontal: 5,
             backgroundColor: '#506EDA',
@@ -70,18 +62,28 @@ export default function HistoryScreen() {
 
             elevation: 6,
           }}>
-          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.title}>
+            {(item?.post || [])?.length > 0 ? item?.post[0].title : ''}
+          </Text>
           <View style={styles.content}>
             <IconHistory.IconClock color="#F1908C" />
-            <Text style={styles.content_text}>{item.dateDonate}</Text>
+            <Text style={styles.content_text}>
+              {(item?.post || [])?.length > 0
+                ? moment(item?.post[0].dateDonate).format('DD-MM-YYYY')
+                : ''}
+            </Text>
           </View>
           <View style={styles.content}>
             <IconHistory.IconLocation />
-            <Text style={styles.content_text}>{item.location}</Text>
+            <Text style={styles.content_text}>
+              {(item?.post || [])?.length > 0
+                ? item?.post[0]?.place[0].address
+                : ''}
+            </Text>
           </View>
           <View style={styles.content}>
             <IconHistory.IconBloodBag />
-            <Text style={styles.content_text}>{item.amount}</Text>
+            <Text style={styles.content_text}>{item.amount}ml</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -91,18 +93,20 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.container}>
       <HeaderPhone
         isShowLeftIcon={false}
-        leftIconColor="#F1908C"
+        styleView={{
+          backgroundColor: '#FF576E',
+        }}
         title="History"
         titleStyle={{
           textAlign: 'center',
           fontWeight: 'bold',
           fontFamily: 'Poppins',
-          color: '#000',
+          color: '#FFF',
         }}
         // rightIcon={<IconSource.ArrowLeftIcon />}
       />
       <FlatList
-        data={DATA}
+        data={listHistory}
         renderItem={renderItem}
         keyExtractor={item => item.id}
       />

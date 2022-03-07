@@ -1,23 +1,21 @@
-import React from 'react'
-import {
-  StyleSheet, View
-} from 'react-native'
-import { SkypeIndicator } from 'react-native-indicators'
-import * as colors from '@constants/colors'
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+import {SkypeIndicator} from 'react-native-indicators';
+// import * as colors from '@constants/colors';
 
 export default function Loading({indicatorColor, indicatorStyle}) {
   return (
     <View style={styles.container}>
-      <View style={styles.bgView}/>
+      <View style={styles.bgView} />
       <View style={styles.indicatorView}>
         <SkypeIndicator
           style={[styles.indicatorStyle, indicatorStyle]}
-          color={indicatorColor || colors.BlueApp}
+          color={indicatorColor || '#FF576E'}
           size={50}
         />
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -27,7 +25,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000
+    zIndex: 1000,
   },
   bgView: {
     width: '100%',
@@ -36,16 +34,16 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
     backgroundColor: 'black',
-    opacity: 0.2
+    opacity: 0.2,
   },
   indicatorView: {
     width: 80,
     height: 80,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   indicatorStyle: {
     width: 30,
-    height: 30
-  }
-})
+    height: 30,
+  },
+});

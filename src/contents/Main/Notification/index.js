@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,50 +11,43 @@ import {
 } from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import NavigationService from '../../../core/utils/navigation';
-import historyStack from './routes';
+import homeStack from '../Home/routes';
 import AppView from '@utils/appView';
 import IconHistory from 'src/assets/icons/History';
 import HeaderPhone from 'src/components/header';
-
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'Hien mau lan 1',
-    dateDonate: '03/05/2021',
-    location: 'Da Nang',
-    amount: '350ml',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Hien mau lan 2',
-    dateDonate: '03/06/2021',
-    location: 'Da Nang1',
-    amount: '250ml',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Hien mau lan 3',
-    dateDonate: '03/04/2021',
-    location: 'Da Nang2',
-    amount: '150ml',
-  },
-];
+import {get} from '../../../core/utils/apis';
+import moment from 'moment';
+import Loading from '@components/Loading/index';
 
 export default function NotificationScreen() {
+  const [notification, setNotification] = useState();
+  const [loading, setLoading] = useState(false);
+  const getNotifications = async () => {
+    setLoading(true);
+    try {
+      await get('/blood/notification?user=1').then(res => {
+        setNotification(res.results);
+        setLoading(false);
+      });
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getNotifications();
+  }, []);
   const renderItem = ({item}) => {
     return (
       <View
         style={{
           width: AppView.screenWidth,
-          height: 150,
           paddingHorizontal: 20,
+          marginTop: 20,
         }}>
-        {/* <ImageBackground style={{width: 300, height: 300, alignSelf: 'center'}}>
-          {item.image}
-        </ImageBackground> */}
         <TouchableOpacity
           onPress={() => {
-            NavigationService.navigate(historyStack.detail, item);
+            NavigationService.navigate(homeStack.detail, item.post);
           }}
           style={{
             backgroundColor: '#506EDA',
@@ -69,19 +62,13 @@ export default function NotificationScreen() {
 
             elevation: 6,
           }}>
+          <View style={styles.content}>
+            <IconHistory.IconClock color="#F1908C" />
+            <Text style={styles.title}>
+              {moment(item.created_at).format('hh:mm DD-MM-YYYY')}
+            </Text>
+          </View>
           <Text style={styles.title}>{item.title}</Text>
-          <View style={styles.content}>
-            <IconHistory.IconClock />
-            <Text style={styles.content_text}>{item.dateDonate}</Text>
-          </View>
-          <View style={styles.content}>
-            <IconHistory.IconLocation />
-            <Text style={styles.content_text}>{item.location}</Text>
-          </View>
-          <View style={styles.content}>
-            <IconHistory.IconBloodBag />
-            <Text style={styles.content_text}>{item.amount}</Text>
-          </View>
         </TouchableOpacity>
       </View>
     );
@@ -90,17 +77,21 @@ export default function NotificationScreen() {
     <SafeAreaView style={styles.container}>
       <HeaderPhone
         isShowLeftIcon={false}
+        styleView={{
+          backgroundColor: '#FF576E',
+        }}
         title="Notification"
         titleStyle={{
           textAlign: 'center',
           fontWeight: 'bold',
           fontFamily: 'Poppins',
-          color: '#000',
+          color: '#FFF',
         }}
         // rightIcon={<IconSource.ArrowLeftIcon />}
       />
+      {loading && <Loading />}
       <FlatList
-        data={DATA}
+        data={notification}
         renderItem={renderItem}
         keyExtractor={item => item.id}
       />
@@ -127,6 +118,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flexDirection: 'row',
+    alignItems: 'center',
     margin: 5,
   },
   content_text: {

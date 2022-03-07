@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -22,25 +22,50 @@ import {useDispatch} from 'react-redux';
 import IconSource from '@icons';
 import NavigationService from '@utils/navigation';
 import loginStack from '../routes';
+import {post} from '../../../../core/utils/apis';
+import Loading from '../../../../components/Loading/index';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const {
     control,
-    handleSubmit,
     formState: {errors},
+    handleSubmit,
   } = useForm();
   const dispatch = useDispatch();
 
-  const onSubmit = value => handleData(value);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
+  const onSubmit = async value => {
+    setLoading(true);
+    setError(false);
+    console.log('value :>> ', value);
+    const data = {
+      username: value.username,
+      password: value.password,
+      deviceToken: global.deviceToken,
+    };
+    const res = await post('/login', data);
+
+    if (res.code == 400) {
+      setError(res.message);
+      setLoading(false);
+    } else {
+      handleData(res);
+      global.token = res.access_token;
+      setLoading(false);
+    }
+  };
   const handleData = value => {
-    Promise.all([
-      dispatch(saveToken('sadsada')),
-      // dispatch(deleteAllData())
-    ]);
+    if (value.access_token) {
+      Promise.all([dispatch(saveToken(value.access_token))]);
+      AsyncStorage.setItem('SAVE_TOKEN', value.access_token);
+    }
   };
   return (
     <View style={styles.container}>
+      {loading && <Loading />}
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <KeyboardAvoidingView
           behavior="position"
@@ -48,29 +73,29 @@ export default function LoginScreen() {
           <Image style={styles.header_imgae} source={AuthImage.headerAuth} />
           <View style={styles.contentView}>
             <Input
-              name="email"
+              name="username"
               control={control}
               rules={{
                 required: true,
                 pattern: {
-                  value: EMAIL_REGEX,
-                  message: 'Not a valid email',
+                  message: 'You have to fill your username',
                 },
               }}
-              placeholder="Email"
+              placeholder="Username"
               style={styles.inputView}
             />
-            {errors?.email && (
+            {errors?.username && (
               <Text
                 style={[
                   styles.errorTxt,
                   customTxt(Font.Regular, 12, colors.error).txt,
                 ]}>
-                Not a valid email!
+                You have to fill your username
               </Text>
             )}
             <Input
               name="password"
+              secureTextEntry={true}
               control={control}
               rules={{
                 required: true,
@@ -89,17 +114,24 @@ export default function LoginScreen() {
             )}
           </View>
           <View style={styles.forgotPass}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                NavigationService.navigate(loginStack.forgotPassword)
+              }>
               <Text style={customTxt(Font.Regular, 14, colors.text).txt}>
                 Forgot password?
               </Text>
             </TouchableOpacity>
           </View>
+          {!!error && (
+            <Text style={{color: 'red', textAlign: 'center'}}>{error}</Text>
+          )}
           <View style={styles.bgBtnView}>
             <TouchableOpacity
               style={styles.btnView}
-              // onPress={handleSubmit(onSubmit)}
-              onPress={onSubmit}>
+              onPress={handleSubmit(onSubmit)}
+              // onPress={handleSubmit}
+            >
               <Text style={customTxt(Font.Bold, 15, colors.white).txt}>
                 Login
               </Text>

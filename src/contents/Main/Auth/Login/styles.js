@@ -59,7 +59,7 @@ export default StyleSheet.create({
     color: colors.text,
   },
   bgBtnView: {
-    top: 50,
+    top: 30,
   },
   errorTxt: {
     marginTop: 10,

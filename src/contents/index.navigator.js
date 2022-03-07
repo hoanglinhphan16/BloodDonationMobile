@@ -18,14 +18,14 @@ const Stack = createStackNavigator();
 export default function MainStack() {
   const token = useSelector(state => state?.user?.token);
   const isOnBoarding = useSelector(state => state?.config.isOnBoarding);
-
   function NavigationCase() {
     if (_.isEmpty(token)) {
-      if (isOnBoarding) {
-        return OnBoardingStack();
-      } else {
-        return AuthStack();
-      }
+      // if (isOnBoarding) {
+      //   return OnBoardingStack();
+      // } else {
+      //   return AuthStack();
+      // }
+      return AuthStack();
     }
     return <Stack.Screen name="mainBottomTab" component={MainBottomTab} />;
   }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -11,8 +11,38 @@ import {
 } from 'react-native';
 import IconSource from '@icons';
 import HeaderPhone from 'src/components/header';
+import {useForm} from 'react-hook-form';
+import {Input} from '@components';
+import {customTxt} from '@constants/css';
+import Font from '@fonts';
+import * as colors from '@colors';
+import {post} from '../../../core/utils/apis';
 
 const ChangePasswordScreen = props => {
+  const {
+    control,
+    formState: {errors},
+    handleSubmit,
+    watch,
+  } = useForm();
+  const newPassword = useRef({});
+  newPassword.current = watch('newPassword', '');
+
+  const [message, setMessage] = useState();
+  const onSubmit = async value => {
+    setMessage('');
+    const data = {
+      password: value.password,
+      new_password: value.newPassword,
+    };
+
+    const res = await post('/account/change_password?', data);
+    console.log(res);
+    if ((res.code = 400)) {
+      setMessage(res.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <HeaderPhone
@@ -41,15 +71,31 @@ const ChangePasswordScreen = props => {
                   fontWeight: 'bold',
                   marginTop: 10,
                 }}>
-                Old Password:
+                Current Password:
               </Text>
-              <TextInput
+              <Input
+                name="password"
+                secureTextEntry={true}
+                control={control}
+                rules={{
+                  required: true,
+                }}
                 style={{
                   borderWidth: 1,
                   marginBottom: 5,
                   borderRadius: 20,
                   padding: 10,
-                }}></TextInput>
+                }}
+              />
+              {errors?.password && (
+                <Text
+                  style={[
+                    styles.errorTxt,
+                    customTxt(Font.Regular, 12, colors.error).txt,
+                  ]}>
+                  Not a valid password
+                </Text>
+              )}
               <Text
                 style={{
                   fontSize: 14,
@@ -60,13 +106,29 @@ const ChangePasswordScreen = props => {
                 }}>
                 New Password:
               </Text>
-              <TextInput
+              <Input
+                name="newPassword"
+                secureTextEntry={true}
+                control={control}
+                rules={{
+                  required: true,
+                }}
                 style={{
                   borderWidth: 1,
                   marginBottom: 5,
                   borderRadius: 20,
                   padding: 10,
-                }}></TextInput>
+                }}
+              />
+              {errors?.password && (
+                <Text
+                  style={[
+                    styles.errorTxt,
+                    customTxt(Font.Regular, 12, colors.error).txt,
+                  ]}>
+                  Not a valid password
+                </Text>
+              )}
               <Text
                 style={{
                   fontSize: 14,
@@ -77,14 +139,47 @@ const ChangePasswordScreen = props => {
                 }}>
                 Confirm Password:
               </Text>
-              <TextInput
+              <Input
+                name="comfirmPassword"
+                control={control}
+                secureTextEntry={true}
+                rules={{
+                  required: true,
+                  validate: value =>
+                    value === newPassword.current ||
+                    'The passwords do not match',
+                }}
                 style={{
                   borderWidth: 1,
                   marginBottom: 5,
                   borderRadius: 20,
                   padding: 10,
-                }}></TextInput>
+                }}
+              />
+              {errors?.comfirmPassword && (
+                <Text
+                  style={[
+                    styles.errorTxt,
+                    customTxt(Font.Regular, 12, colors.error).txt,
+                  ]}>
+                  {errors?.comfirmPassword?.message ||
+                    'Not a valid comfirm password'}
+                </Text>
+              )}
+              {!!message && (
+                <Text style={{color: 'red', textAlign: 'center'}}>
+                  {message}
+                </Text>
+              )}
+
+              {/* {!!success && (
+                <Text style={{color: 'green', textAlign: 'center'}}>
+                  {success}
+                </Text>
+              )} */}
+
               <TouchableOpacity
+                onPress={handleSubmit(onSubmit)}
                 style={{
                   marginTop: 30,
                   backgroundColor: '#F1908C',

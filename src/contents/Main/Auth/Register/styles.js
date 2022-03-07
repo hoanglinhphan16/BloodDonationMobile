@@ -49,6 +49,7 @@ export default StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 20,
   },
   viewSignIn: {
     flexDirection: 'row',
