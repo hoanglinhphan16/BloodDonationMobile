@@ -17,7 +17,7 @@ import {get} from '../../../core/utils/apis';
 import moment from 'moment';
 import Loading from '@components/Loading/index';
 
-export default function HomeScreen() {
+export default function HomeScreen({navigation}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const getAllPosts = async () => {
@@ -33,9 +33,14 @@ export default function HomeScreen() {
         setLoading(true);
       });
   };
-  useEffect(() => {
-    getAllPosts();
-  }, []);
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getAllPosts();
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
   const renderItem = ({item}) => {
     return (
       <View>

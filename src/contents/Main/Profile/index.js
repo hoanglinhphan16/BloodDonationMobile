@@ -57,20 +57,24 @@ export default function ProfileScreen({navigation}) {
     ImagePicker.openPicker({
       height: 300,
       cropping: true,
-    }).then(image => {
-      setAvatar(image);
-      console.log(avatar);
-    });
+    })
+      .then(image => {
+        setAvatar(image);
+        console.log(avatar);
+      })
+      .catch(error => console.log(error));
   };
   const handleOpenCamera = () => {
     ImagePicker.openCamera({
       width: 300,
       height: 400,
       cropping: true,
-    }).then(image => {
-      setAvatar(image);
-      console.log(avatar);
-    });
+    })
+      .then(image => {
+        setAvatar(image);
+        console.log(avatar);
+      })
+      .catch(error => console.log(error));
   };
   const getUserInfo = async () => {
     setLoading(true);
@@ -188,7 +192,6 @@ export default function ProfileScreen({navigation}) {
   }, []);
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      console.log('123');
       getUserInfo();
     });
 

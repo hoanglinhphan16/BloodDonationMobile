@@ -39,7 +39,7 @@ const DetailScreen = props => {
     };
     console.log(data);
     const res = await post('/blood/register', data);
-    if (res.code == 400) {
+    if (res.code >= 400) {
       setError(res.message);
     } else {
       console.log(res);

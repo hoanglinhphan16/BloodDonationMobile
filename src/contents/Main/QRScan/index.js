@@ -27,6 +27,20 @@ export default function ScanScreen() {
       console.log(e);
       const res = await get(`/blood/post/${e.data}/scan_qr_code`);
       console.log(res);
+      if (res.code >= 400) {
+        showMessage({
+          message: 'Something went wrong!',
+          backgroundColor: 'red',
+          // icon: 'info',
+          duration: 10000,
+          hideStatusBar: true,
+          titleStyle: {fontWeight: 'bold', fontSize: 15},
+          style: {borderBottomRightRadius: 10, borderBottomLeftRadius: 10},
+          onPress: () => {
+            NavigationService.navigate(homeStack.detail, post);
+          },
+        });
+      }
       if (res.message) {
         showMessage({
           message: 'Thanks for your donation. Wish you have a good day!',
@@ -51,6 +65,8 @@ export default function ScanScreen() {
   return (
     <QRCodeScanner
       onRead={onSuccess}
+      reactivate
+      reactivateTimeout={3000}
       // flashMode={RNCamera.Constants.FlashMode.torch}
       // topContent={
       //   <Text style={styles.centerText}>
